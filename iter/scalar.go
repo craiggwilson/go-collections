@@ -66,22 +66,6 @@ func Contains[S comparable](src Iterer[S], target S) (result bool, err error) {
 	return
 }
 
-func ContainsBy[S comparable](src Iterer[S], predicate func(S) bool) (result bool, err error) {
-	it := src.Iter()
-	defer func() {
-		err = it.Close()
-	}()
-
-	for elem, ok := it.Next(); ok; elem, ok = it.Next() {
-		if predicate(elem) {
-			result = true
-			break
-		}
-	}
-
-	return
-}
-
 func ElementAt[S any](src Iterer[S], idx uint) (result S, err error) {
 	it := src.Iter()
 	defer func() {
@@ -103,7 +87,7 @@ func ElementAt[S any](src Iterer[S], idx uint) (result S, err error) {
 	}
 
 	if !found {
-		err = makeOutOfRangeError("idx")
+		err = ErrOutOfRange
 	}
 
 	return
@@ -120,8 +104,22 @@ func First[S any](src Iterer[S]) (result S, err error) {
 
 	elem, ok := it.Next()
 	if !ok {
-		err = makeEmptyError("src")
+		err = ErrEmptyIter
 	} else {
+		result = elem
+	}
+
+	return
+}
+
+func FirstOrDefault[S any](src Iterer[S]) (result S, err error) {
+	it := src.Iter()
+	defer func() {
+		err = it.Close()
+	}()
+
+	elem, ok := it.Next()
+	if ok {
 		result = elem
 	}
 
@@ -158,14 +156,27 @@ func Last[S any](src Iterer[S]) (result S, err error) {
 	}
 
 	if isEmpty {
-		err = makeEmptyError("src")
+		err = ErrEmptyIter
 	}
 
 	return
 }
 
-func Len[S any, R constraints.Integer](src Iterer[S]) (result R, err error) {
-	if counter, ok := src.(interface{ Len() R }); ok {
+func LastOrDefault[S any](src Iterer[S]) (result S, err error) {
+	it := src.Iter()
+	defer func() {
+		err = it.Close()
+	}()
+
+	for elem, ok := it.Next(); ok; elem, ok = it.Next() {
+		result = elem
+	}
+
+	return
+}
+
+func Len[S any](src Iterer[S]) (result int, err error) {
+	if counter, ok := src.(interface{ Len() int }); ok {
 		result, err = counter.Len(), nil
 	} else {
 		it := src.Iter()
@@ -190,21 +201,16 @@ func Max[S constraints.Ordered](src Iterer[S]) (result S, err error) {
 		}
 	}()
 
-	isEmpty := true
-	for elem, ok := it.Next(); ok; elem, ok = it.Next() {
-		if isEmpty {
-			result = elem
-			isEmpty = false
-			continue
+	elem, ok := it.Next()
+	if !ok {
+		err = ErrEmptyIter
+	} else {
+		result = elem
+		for elem, ok = it.Next(); ok; elem, ok = it.Next() {
+			if elem > result {
+				result = elem
+			}
 		}
-
-		if elem > result {
-			result = elem
-		}
-	}
-
-	if isEmpty {
-		err = makeEmptyError("src")
 	}
 
 	return
@@ -219,21 +225,16 @@ func Min[S constraints.Ordered](src Iterer[S]) (result S, err error) {
 		}
 	}()
 
-	isEmpty := true
-	for elem, ok := it.Next(); ok; elem, ok = it.Next() {
-		if isEmpty {
-			result = elem
-			isEmpty = false
-			continue
+	elem, ok := it.Next()
+	if !ok {
+		err = ErrEmptyIter
+	} else {
+		result = elem
+		for elem, ok = it.Next(); ok; elem, ok = it.Next() {
+			if elem < result {
+				result = elem
+			}
 		}
-
-		if elem < result {
-			result = elem
-		}
-	}
-
-	if isEmpty {
-		err = makeEmptyError("src")
 	}
 
 	return
@@ -250,7 +251,7 @@ func Reduce[S any](src Iterer[S], reducer func(S, S) S) (result S, err error) {
 
 	elem, ok := it.Next()
 	if !ok {
-		err = makeEmptyError("src")
+		err = ErrEmptyIter
 	} else {
 		result = elem
 		for elem, ok = it.Next(); ok; elem, ok = it.Next() {

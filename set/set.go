@@ -16,15 +16,3 @@ type Set[T comparable] interface {
 	Clear()
 	Remove(T)
 }
-
-func AddFromIter[T comparable](s Set[T], it iter.Iter[T]) {
-	for e, ok := it.Next(); ok; e, ok = it.Next() {
-		s.Add(e)
-	}
-}
-
-func AddFromSlice[T comparable](s Set[T], slice []T) {
-	for _, e := range slice {
-		s.Add(e)
-	}
-}

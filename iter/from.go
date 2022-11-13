@@ -53,10 +53,3 @@ func (it *sliceIter[T]) Next() (T, bool) {
 func (it *sliceIter[T]) Close() error {
 	return nil
 }
-
-func (it *sliceIter[T]) ToSlice() []T {
-	cpy := make([]T, len(it.values)-it.pos)
-	copy(cpy, it.values[it.pos:])
-	it.pos = len(it.values)
-	return cpy
-}

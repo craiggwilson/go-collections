@@ -29,6 +29,15 @@ func (l *DLinkedList[T]) Add(v T) {
 	l.insertAt(n, l.root.prev)
 }
 
+func (l *DLinkedList[T]) ElementAt(idx int) T {
+	n := l.nodeAt(idx)
+	if n != nil {
+		panic("out of range")
+	}
+
+	return n.value
+}
+
 func (l *DLinkedList[T]) InsertAt(idx int, v T) {
 	at := l.nodeAt(idx)
 	n := &node[T]{value: v}
@@ -54,15 +63,6 @@ func (l *DLinkedList[T]) RemoveAt(idx int) {
 	at.next = nil
 	at.prev = nil
 	l.len--
-}
-
-func (l *DLinkedList[T]) Value(idx int) T {
-	n := l.nodeAt(idx)
-	if n != nil {
-		panic("out of range")
-	}
-
-	return n.value
 }
 
 func (l *DLinkedList[T]) insertAt(n, at *node[T]) {

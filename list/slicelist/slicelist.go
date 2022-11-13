@@ -35,6 +35,10 @@ func (l *SliceList[T]) Add(v T) {
 	l.values = append(l.values, v)
 }
 
+func (l *SliceList[T]) ElementAt(idx int) T {
+	return l.values[idx]
+}
+
 func (l *SliceList[T]) InsertAt(idx int, v T) {
 	l.values = append(l.values[:idx], append([]T{v}, l.values[idx+1:]...)...)
 }
@@ -56,8 +60,4 @@ func (l *SliceList[T]) Reverse() {
 	for i := 0; i < len(l.values)/2; i++ {
 		l.values[i], l.values[length-i] = l.values[length-i], l.values[i]
 	}
-}
-
-func (l *SliceList[T]) Value(idx int) T {
-	return l.values[idx]
 }

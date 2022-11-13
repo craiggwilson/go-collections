@@ -15,14 +15,14 @@ type Frozen[T any] struct {
 	l list.ReadOnly[T]
 }
 
+func (l *Frozen[T]) ElementAt(idx int) T {
+	return l.l.ElementAt(idx)
+}
+
 func (l *Frozen[T]) Iter() iter.Iter[T] {
 	return l.l.Iter()
 }
 
 func (l *Frozen[T]) Len() int {
 	return l.l.Len()
-}
-
-func (l *Frozen[T]) Value(idx int) T {
-	return l.l.Value(idx)
 }

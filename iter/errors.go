@@ -1,11 +1,9 @@
 package iter
 
-import "fmt"
+import (
+	"errors"
+)
 
-func makeEmptyError(name string) error {
-	return fmt.Errorf("%s contains no elements", name)
-}
+var ErrEmptyIter = errors.New("contains no elements")
 
-func makeOutOfRangeError(name string) error {
-	return fmt.Errorf("%s was out of range", name)
-}
+var ErrOutOfRange = errors.New("out of range")
