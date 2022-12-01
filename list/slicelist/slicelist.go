@@ -1,15 +1,18 @@
 package slicelist
 
-import "github.com/craiggwilson/go-collections/iter"
-import "github.com/craiggwilson/go-collections/list"
+import (
+	"golang.org/x/exp/slices"
+
+	"github.com/craiggwilson/go-collections/iter"
+	"github.com/craiggwilson/go-collections/list"
+)
 
 var _ list.List[int] = (*SliceList[int])(nil)
 
 func FromSlice[T comparable](slice []T, opts ...Opt[T]) *SliceList[T] {
+	opts = append([]Opt[T]{WithInitialCapacity[T](len(slice))}, opts...)
 	l := New(opts...)
-	for _, e := range slice {
-		l.Add(e)
-	}
+	l.AddRange(slice)
 	return l
 }
 
@@ -35,12 +38,16 @@ func (l *SliceList[T]) Add(v T) {
 	l.values = append(l.values, v)
 }
 
+func (l *SliceList[T]) AddRange(v []T) {
+	l.values = append(l.values, v...)
+}
+
 func (l *SliceList[T]) ElementAt(idx int) T {
 	return l.values[idx]
 }
 
 func (l *SliceList[T]) InsertAt(idx int, v T) {
-	l.values = append(l.values[:idx], append([]T{v}, l.values[idx+1:]...)...)
+	l.values = slices.Insert(l.values, idx, v)
 }
 
 func (l *SliceList[T]) Iter() iter.Iter[T] {
@@ -52,7 +59,7 @@ func (l *SliceList[T]) Len() int {
 }
 
 func (l *SliceList[T]) RemoveAt(idx int) {
-	l.values = append(l.values[:idx], l.values[idx+1:]...)
+	l.values = slices.Delete(l.values, idx, idx+1)
 }
 
 func (l *SliceList[T]) Reverse() {

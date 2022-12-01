@@ -41,7 +41,7 @@ func (s *MapSet[T]) Contains(v T) bool {
 }
 
 func (s *MapSet[T]) Iter() iter.Iter[T] {
-	return iter.Map(
+	return iter.Select(
 		iter.FromMap(s.values),
 		func(kvp iter.KeyValuePair[T, struct{}]) T {
 			return kvp.Key

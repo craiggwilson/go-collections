@@ -49,11 +49,35 @@ func (it *concatIter[S]) Close() error {
 }
 
 func Distinct[S comparable](src Iterer[S]) Iterer[S] {
-	panic("not implemented")
+	return ItererFunc[S](func() Iter[S] {
+		return &distinctIter[S]{
+			src: src.Iter(),
+			set: make(map[S]struct{}),
+		}
+	})
 }
 
-func DistinctBy[S any, K comparable](src Iterer[S], mapper func(S) K) Iterer[S] {
-	panic("not implemented")
+type distinctIter[S comparable] struct {
+	src Iter[S]
+	set map[S]struct{}
+}
+
+func (it *distinctIter[S]) Next() (S, bool) {
+	for {
+		elem, ok := it.src.Next()
+		if !ok {
+			return elem, false
+		}
+
+		if _, ok = it.set[elem]; !ok {
+			it.set[elem] = struct{}{}
+			return elem, true
+		}
+	}
+}
+
+func (it *distinctIter[S]) Close() error {
+	return it.src.Close()
 }
 
 func Filter[S any](src Iterer[S], filter func(S) bool) Iterer[S] {
@@ -96,36 +120,36 @@ func Group[S any, K comparable](src Iterer[S], mapper func(S) K) Iterer[Grouping
 	panic("not implemented")
 }
 
-func Map[S, R any](src Iterer[S], mapper func(S) R) Iterer[R] {
+func Prepend[S any](src Iterer[S], values ...S) Iterer[S] {
+	return Concat(FromSlice(values), src)
+}
+
+func Select[S, R any](src Iterer[S], selector func(S) R) Iterer[R] {
 	return ItererFunc[R](func() Iter[R] {
-		return &mapIter[S, R]{
-			src:    src.Iter(),
-			mapper: mapper,
+		return &selectIter[S, R]{
+			src:      src.Iter(),
+			selector: selector,
 		}
 	})
 }
 
-type mapIter[S, R any] struct {
-	src    Iter[S]
-	mapper func(S) R
+type selectIter[S, R any] struct {
+	src      Iter[S]
+	selector func(S) R
 }
 
-func (it *mapIter[S, R]) Next() (R, bool) {
+func (it *selectIter[S, R]) Next() (R, bool) {
 	value, ok := it.src.Next()
 	if !ok {
 		var def R
 		return def, false
 	}
 
-	return it.mapper(value), true
+	return it.selector(value), true
 }
 
-func (it *mapIter[S, R]) Close() error {
+func (it *selectIter[S, R]) Close() error {
 	return it.src.Close()
-}
-
-func Prepend[S any](src Iterer[S], values ...S) Iterer[S] {
-	return Concat(FromSlice(values), src)
 }
 
 func SelectMany[S, R any](src Iterer[S], selector func(S) Iterer[R]) Iterer[R] {

@@ -47,9 +47,9 @@ func Test_All(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.All(slice, tc.predicate)
+			actual, err := iter.All(it, tc.predicate)
 			must.NoError(t, err)
 			must.Eq(t, tc.expected, actual)
 		})
@@ -94,9 +94,9 @@ func Test_Any(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Any(slice, tc.predicate)
+			actual, err := iter.Any(it, tc.predicate)
 			must.NoError(t, err)
 			must.Eq(t, tc.expected, actual)
 		})
@@ -129,9 +129,9 @@ func Test_Contains(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Contains(slice, tc.target)
+			actual, err := iter.Contains(it, tc.target)
 			must.NoError(t, err)
 			must.Eq(t, tc.expected, actual)
 		})
@@ -177,9 +177,9 @@ func Test_ElementAt(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.ElementAt(slice, tc.index)
+			actual, err := iter.ElementAt(it, tc.index)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -220,9 +220,9 @@ func Test_First(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.First(slice)
+			actual, err := iter.First(it)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -262,9 +262,9 @@ func Test_FirstOrDefault(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.FirstOrDefault(slice)
+			actual, err := iter.FirstOrDefault(it)
 			must.NoError(t, err)
 
 			must.Eq(t, tc.expected, actual)
@@ -314,9 +314,9 @@ func Test_Fold(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Fold(slice, tc.seed, tc.reducer)
+			actual, err := iter.Fold(it, tc.seed, tc.reducer)
 			must.NoError(t, err)
 
 			must.Eq(t, tc.expected, actual)
@@ -353,9 +353,9 @@ func Test_Last(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Last(slice)
+			actual, err := iter.Last(it)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -395,9 +395,9 @@ func Test_LastOrDefault(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.LastOrDefault(slice)
+			actual, err := iter.LastOrDefault(it)
 			must.NoError(t, err)
 
 			must.Eq(t, tc.expected, actual)
@@ -433,9 +433,9 @@ func Test_Len(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Len(slice)
+			actual, err := iter.Len(it)
 			must.NoError(t, err)
 
 			must.Eq(t, tc.expected, actual)
@@ -482,9 +482,9 @@ func Test_Max(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Max(slice)
+			actual, err := iter.Max(it)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -535,9 +535,9 @@ func Test_Min(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Min(slice)
+			actual, err := iter.Min(it)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -588,9 +588,9 @@ func Test_Reduce(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Reduce(slice, tc.reducer)
+			actual, err := iter.Reduce(it, tc.reducer)
 			if tc.err != nil {
 				must.ErrorIs(t, err, tc.err)
 			} else {
@@ -630,9 +630,9 @@ func Test_Sum(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			slice := iter.FromSlice(tc.input)
+			it := iter.FromSlice(tc.input)
 
-			actual, err := iter.Sum(slice)
+			actual, err := iter.Sum(it)
 			must.NoError(t, err)
 
 			must.Eq(t, tc.expected, actual)

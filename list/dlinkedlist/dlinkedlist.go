@@ -1,7 +1,9 @@
 package dlinkedlist
 
-import "github.com/craiggwilson/go-collections/iter"
-import "github.com/craiggwilson/go-collections/list"
+import (
+	"github.com/craiggwilson/go-collections/iter"
+	"github.com/craiggwilson/go-collections/list"
+)
 
 var _ list.List[int] = (*DLinkedList[int])(nil)
 
@@ -46,7 +48,7 @@ func (l *DLinkedList[T]) InsertAt(idx int, v T) {
 }
 
 func (l *DLinkedList[T]) Iter() iter.Iter[T] {
-	return &linkedIter[T]{
+	return &dlinkedIter[T]{
 		list: l,
 		cur:  l.root.next,
 	}
@@ -86,12 +88,12 @@ func (l *DLinkedList[T]) nodeAt(idx int) *node[T] {
 	return at
 }
 
-type linkedIter[T any] struct {
+type dlinkedIter[T any] struct {
 	list *DLinkedList[T]
 	cur  *node[T]
 }
 
-func (it *linkedIter[T]) Next() (T, bool) {
+func (it *dlinkedIter[T]) Next() (T, bool) {
 	if it.cur != &it.list.root {
 		it.cur = it.cur.next
 		return it.cur.prev.value, true
@@ -101,6 +103,6 @@ func (it *linkedIter[T]) Next() (T, bool) {
 	return t, false
 }
 
-func (it *linkedIter[T]) Close() error {
+func (it *dlinkedIter[T]) Close() error {
 	return nil
 }

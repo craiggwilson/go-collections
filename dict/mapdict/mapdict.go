@@ -41,7 +41,7 @@ func (d *MapDict[K, V]) Iter() iter.Iter[iter.KeyValuePair[K, V]] {
 }
 
 func (d *MapDict[K, V]) Keys() iter.Iterer[K] {
-	return iter.Map(
+	return iter.Select(
 		iter.FromMap(d.values),
 		func(kvp iter.KeyValuePair[K, V]) K {
 			return kvp.Key
@@ -67,7 +67,7 @@ func (d *MapDict[K, V]) Value(k K) (V, bool) {
 }
 
 func (d *MapDict[K, V]) Values() iter.Iterer[V] {
-	return iter.Map(iter.FromMap(d.values), func(kvp iter.KeyValuePair[K, V]) V {
+	return iter.Select(iter.FromMap(d.values), func(kvp iter.KeyValuePair[K, V]) V {
 		return kvp.Value
 	})
 }
