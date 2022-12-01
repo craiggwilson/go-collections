@@ -184,6 +184,46 @@ func TestSelect(t *testing.T) {
 	}
 }
 
+func TestSelectMany(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		input    []int
+		selector func(int) iter.Iterer[int]
+		expected []int
+	}{
+		{
+			name:     "identity",
+			input:    []int{1, 3, 5, 7, 9},
+			selector: func(i int) iter.Iterer[int] { return iter.FromSlice([]int{i}) },
+			expected: []int{1, 3, 5, 7, 9},
+		},
+		{
+			name:     "doubling",
+			input:    []int{1, 3, 5, 7, 9},
+			selector: func(i int) iter.Iterer[int] { return iter.Repeat(i, 2) },
+			expected: []int{1, 1, 3, 3, 5, 5, 7, 7, 9, 9},
+		},
+		{
+			name:     "empty",
+			input:    nil,
+			expected: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			it := iter.FromSlice(tc.input)
+
+			actual, err := iter.ToSlice(iter.SelectMany(it, tc.selector))
+			must.NoError(t, err)
+			must.Eq(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestSkip(t *testing.T) {
 	t.Parallel()
 

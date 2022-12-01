@@ -153,7 +153,67 @@ func (it *selectIter[S, R]) Close() error {
 }
 
 func SelectMany[S, R any](src Iterer[S], selector func(S) Iterer[R]) Iterer[R] {
-	panic("not implemented")
+	return ItererFunc[R](func() Iter[R] {
+		return &selectManyIter[S, R]{
+			src:      src.Iter(),
+			selector: selector,
+		}
+	})
+}
+
+type selectManyIter[S, R any] struct {
+	src      Iter[S]
+	selector func(S) Iterer[R]
+
+	cur Iter[R]
+	err error
+}
+
+func (it *selectManyIter[S, R]) Next() (R, bool) {
+	if it.err != nil {
+		var def R
+		return def, false
+	}
+
+	for {
+		if it.cur != nil {
+			elem, ok := it.cur.Next()
+			if ok {
+				return elem, true
+			}
+
+			it.err = it.cur.Close()
+			if it.err != nil {
+				var def R
+				return def, false
+			}
+
+			it.cur = nil
+		}
+
+		next, ok := it.src.Next()
+		if !ok {
+			var def R
+			return def, false
+		}
+
+		nextIterer := it.selector(next)
+		if nextIterer != nil {
+			it.cur = nextIterer.Iter()
+		}
+	}
+
+	var def R
+	return def, false
+}
+
+func (it *selectManyIter[S, R]) Close() error {
+	srcErr := it.src.Close()
+	if it.err != nil {
+		return it.err
+	}
+
+	return srcErr
 }
 
 func Skip[S any](src Iterer[S], skip int) Iterer[S] {
