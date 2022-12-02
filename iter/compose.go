@@ -1,9 +1,5 @@
 package iter
 
-func Append[S any](dst Iterer[S], values ...S) Iterer[S] {
-	return Concat(dst, FromSlice(values))
-}
-
 func Chunk[S any](src Iterer[S], size int) Iterer[[]S] {
 	panic("not implemented")
 }
@@ -112,16 +108,46 @@ func (it *filterIter[S]) Close() error {
 }
 
 type Grouping[S any, K comparable] struct {
-	Key  K
-	Iter Iter[S]
+	Key    K
+	Values []S
 }
 
-func Group[S any, K comparable](src Iterer[S], mapper func(S) K) Iterer[Grouping[S, K]] {
-	panic("not implemented")
+func Group[S any, K comparable](src Iterer[S], keySelector func(S) K) Iterer[Grouping[S, K]] {
+	return ItererFunc[Grouping[S, K]](func() Iter[Grouping[S, K]] {
+		result, err := buildGroup(src, keySelector)
+		if err != nil {
+			return FromSlice[Grouping[S, K]](result).Iter()
+		}
+
+		return Concat(
+			FromSlice[Grouping[S, K]](result),
+			Err[Grouping[S, K]](err),
+		).Iter()
+	})
 }
 
-func Prepend[S any](src Iterer[S], values ...S) Iterer[S] {
-	return Concat(FromSlice(values), src)
+func buildGroup[S any, K comparable](src Iterer[S], keySelector func(S) K) (result []Grouping[S, K], err error) {
+	it := src.Iter()
+	defer func() {
+		err = it.Close()
+	}()
+
+	m := make(map[K][]S)
+
+	for elem, ok := it.Next(); ok; elem, ok = it.Next() {
+		key := keySelector(elem)
+		m[key] = append(m[key], elem)
+	}
+
+	result = make([]Grouping[S, K], len(m))
+	for k, v := range m {
+		result = append(result, Grouping[S, K]{
+			Key:    k,
+			Values: v,
+		})
+	}
+
+	return
 }
 
 func Select[S, R any](src Iterer[S], selector func(S) R) Iterer[R] {
